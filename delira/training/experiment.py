@@ -6,7 +6,6 @@ from delira import __version__ as delira_version
 from .parameters import Parameters
 from ..models import AbstractNetwork
 from .abstract_trainer import AbstractNetworkTrainer
-from trixi.experiment import Experiment as TrixiExperiment
 import os
 import logging
 import typing
@@ -25,7 +24,7 @@ from delira import get_backends
 logger = logging.getLogger(__name__)
 
 
-class AbstractExperiment(TrixiExperiment):
+class AbstractExperiment(object):
     """
     Abstract Class Representing a single Experiment (must be subclassed for
     each Backend)
@@ -48,7 +47,8 @@ class AbstractExperiment(TrixiExperiment):
         **kwargs :
             keyword arguments
         """
-        super().__init__(n_epochs)
+        super().__init__()
+        self.n_epochs = n_epochs
         self._run = 0
 
     @abstractmethod
@@ -445,6 +445,7 @@ class AbstractExperiment(TrixiExperiment):
 
         """
         raise NotImplementedError()
+
 
 if "TORCH" in get_backends():
 

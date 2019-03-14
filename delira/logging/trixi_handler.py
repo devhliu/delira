@@ -1,82 +1,84 @@
 from logging import Handler, NOTSET
 from trixi.logger import AbstractLogger as AbstractTrixiLogger
+from delira import get_backends
 
 
 TRIXI_PREFIXES = ["show_", "plot_", "save_", "get_", ""]
 
 
-class TrixiHandler(Handler):
-    """
-    Handler to integrate the :mod:`trixi` loggers into the :mod:`logging`
-    module
+if "TRIXI" in get_backends():
+    class TrixiHandler(Handler):
+        """
+        Handler to integrate the :mod:`trixi` loggers into the :mod:`logging`
+        module
 
-    """
-
-    def __init__(self, logging_cls, level=NOTSET, *args, **kwargs):
         """
 
-        Parameters
-        ----------
-        logging_cls :
-            logging class (must be subclass of `trixi.logger.AbstractLogger`)
-        level : int (default: NOTSET)
-            logging level
-        *args :
-            positional arguments to instantiate the logger from the
-            `logging_cls`
-        **kwargs :
-            keyword arguments to instantiate the logger from the `logging_cls`
+        def __init__(self, logging_cls, level=NOTSET, *args, **kwargs):
+            """
 
-        """
-        super().__init__(level)
+            Parameters
+            ----------
+            logging_cls :
+                logging class (must be subclass of `trixi.logger.AbstractLogger`)
+            level : int (default: NOTSET)
+                logging level
+            *args :
+                positional arguments to instantiate the logger from the
+                `logging_cls`
+            **kwargs :
+                keyword arguments to instantiate the logger from the `logging_cls`
 
-        assertion_str = "%s is not a subclass of %s" % (
-            logging_cls.__name__, AbstractTrixiLogger.__name__)
+            """
+            super().__init__(level)
 
-        assert issubclass(logging_cls, AbstractTrixiLogger), assertion_str
-        self._logger = logging_cls(*args, **kwargs)
+            assertion_str = "%s is not a subclass of %s" % (
+                logging_cls.__name__, AbstractTrixiLogger.__name__)
 
-    def emit(self, record):
-        """
-        logs the record entity to `trixi` loggers
+            assert issubclass(logging_cls, AbstractTrixiLogger), assertion_str
+            self._logger = logging_cls(*args, **kwargs)
 
-        Parameters
-        ----------
-        record : LogRecord
-            record to log
+        def emit(self, record):
+            """
+            logs the record entity to `trixi` loggers
 
-        """
-        if not isinstance(record.msg, dict):
-            return
+            Parameters
+            ----------
+            record : LogRecord
+                record to log
 
-        for key, val in record.msg.items():
+            """
+            if not isinstance(record.msg, dict):
+                return
 
-            for _prefix in TRIXI_PREFIXES:
-                if hasattr(self._logger, _prefix + key) and callable(
-                        getattr(self._logger, _prefix + key)):
+            for key, val in record.msg.items():
 
-                    if isinstance(val, dict):
-                        # get args from val dict
-                        args = val.pop("args", [])
-                        # combine kwargs from val["kwargs"} and other
-                        # key, val pairs in val
-                        kwargs = {**val.pop("kwargs", {}),
-                                  **val}
+                for _prefix in TRIXI_PREFIXES:
+                    if hasattr(self._logger, _prefix + key) and callable(
+                            getattr(self._logger, _prefix + key)):
 
-                    else:
-                        # check if val is iterable
-                        try:
-                            iter(val)
+                        if isinstance(val, dict):
+                            # get args from val dict
+                            args = val.pop("args", [])
+                            # combine kwargs from val["kwargs"} and other
+                            # key, val pairs in val
+                            kwargs = {**val.pop("kwargs", {}),
+                                    **val}
 
-                            # val is iterable -> use it as args
-                            args = val
+                        else:
+                            # check if val is iterable
+                            try:
+                                iter(val)
 
-                        except TypeError:
-                            # val is not iterable -> store it in list and use
-                            # this list as args
-                            args = [val]
+                                # val is iterable -> use it as args
+                                args = val
 
-                        # val specifies args -> no kwargs given
-                        kwargs = {}
+                            except TypeError:
+                                # val is not iterable -> store it in list and use
+                                # this list as args
+                                args = [val]
 
-                    getattr(self._logger, _prefix + key)(*args, **kwargs)
+                            # val specifies args -> no kwargs given
+                            kwargs = {}
+
+                        getattr(self._logger, _prefix + key)(*args, **kwargs)

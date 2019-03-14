@@ -14,8 +14,7 @@ if "TF" in delira.get_backends():
     test_cases = [
         (
             Parameters(fixed_params={
-                "model": {'in_channels': 32,
-                          'n_outputs': 1},
+                "model": {},
                 "training": {
                     "criterions": {"CE":
                                    tf.losses.softmax_cross_entropy},

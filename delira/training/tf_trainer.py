@@ -9,8 +9,9 @@ from .abstract_trainer import AbstractNetworkTrainer
 from .train_utils import create_optims_default_tf as create_optims_default
 from .train_utils import initialize_uninitialized
 from ..io import tf_load_checkpoint, tf_save_checkpoint
-from delira.logging import TrixiHandler
-from trixi.logger.tensorboard.tensorboardxlogger import TensorboardXLogger
+from delira.logging import TensorboardXHandler
+#from delira.logging import TrixiHandler
+#from trixi.logger.tensorboard.tensorboardxlogger import TensorboardXLogger
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,6 @@ class TfNetworkTrainer(AbstractNetworkTrainer):
                  optim_fn=create_optims_default,
                  fold=0, callbacks=[], start_epoch=1,
                  **kwargs):
-
         """
 
         Parameters
@@ -88,7 +88,9 @@ class TfNetworkTrainer(AbstractNetworkTrainer):
             handler.close()
         root_logger.handlers = []
         logging.basicConfig(level=logging.INFO,
-                            handlers=[TrixiHandler(TensorboardXLogger, 0, self.save_path)])
+                            handlers=[TensorboardXHandler(
+                                'tensorboard', 0,
+                                log_dir=self.save_path)])
 
         self.losses = losses
 
@@ -534,7 +536,6 @@ class TfNetworkTrainer(AbstractNetworkTrainer):
             filename to save the state to
         """
         tf_save_checkpoint(file_name, self.module)
-
 
     def load_state(self, file_name):
         """

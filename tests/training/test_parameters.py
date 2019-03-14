@@ -38,14 +38,15 @@ def test_parameters(fixed_model_params, variable_model_params,
         fixed_params={
             "model": fixed_model_params,
             "training": fixed_training_params
-            },
+        },
         variable_params={
             "model": variable_model_params,
             "training": variable_training_params
-            }
-        )
+        }
+    )
 
     assert params.training_on_top == False
+    print(params.variability_on_top)
     assert params.variability_on_top
 
     assert params.fixed == to_lookup_config({
@@ -58,7 +59,6 @@ def test_parameters(fixed_model_params, variable_model_params,
         "training": variable_training_params
     })
 
-    
     params = params.permute_training_on_top()
 
     assert params.variability_on_top == False
@@ -84,7 +84,7 @@ def test_parameters(fixed_model_params, variable_model_params,
     assert params_copy == params
 
     assert params.nested_get(valid_nested_key) == valid_nested_value
-    
+
     try:
         params.nested_get(doubled_key)
         assert False
@@ -99,6 +99,7 @@ def test_parameters(fixed_model_params, variable_model_params,
 
     assert "default" == params.nested_get(invalid_key, "default")
     assert "default" == params.nested_get(invalid_key, default="default")
+
 
 if __name__ == '__main__':
     test_parameters()

@@ -5,4 +5,4 @@ from .imageops import bounding_box, calculate_origin_offset, max_energy_slice, \
 from .path import subdirs
 from .time import now
 
-from .config import LookupConfig
+from .lookup_config import LookupConfig
